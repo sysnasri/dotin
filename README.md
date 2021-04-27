@@ -32,12 +32,12 @@ There are several folders in this repository. Please reffer to each folder for m
 
 # Ansible
 
-I could have Installed ansible via vagrant which is also added to the project but the installation procedure is done via the following ansible role.
+I could have Installed swarm cluster via vagrant but it is much more easier to use a simple ansible role. I have bootstraped  the nodes via vagrant which is added to the project but the installation procedure is done via the following ansible role.
 
         ansible-galaxy install atosatto.docker-swarm
 
 
-for those who want to install via vagrant please reffer to vagrant folder.
+for those who want to install via vagrant please reffer to vagrant documentations.
 
 # Gitlab
 
@@ -46,15 +46,17 @@ Personally I would rather install applications via JUJU charms in combination wi
             https://maas.io/
             https://jaas.ai/ 
 
-You can find the same folder as task name as well. 
 
 # Sample Project:
 
-A folder called `web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two apache webservers as backend.
+A folder called `web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two nginx webservers as backend.
 
 # ELK Stack:
 
-    Elastic , logstash and kibana are deployed as docker
+    Elastic , logstash and kibana are deployed as docker container
+
+Good Luck. 
+
 
 
 
