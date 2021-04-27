@@ -71,7 +71,6 @@ services:
         volumes:
             - ./code:/var/www/html
             - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
-        container_name: phpfpm
         deploy:
             mode: replicated
             replicas: 3
