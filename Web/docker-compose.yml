@@ -54,7 +54,7 @@ services:
             - "8888:80"
         volumes:
             - ./code:/var/www/html
-            - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+            - ./nginx/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
         deploy:
             mode: replicated
             replicas: 3
