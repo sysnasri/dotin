@@ -19,7 +19,7 @@ services:
         ports:
           - "3306:3306"
         volumes:
-             - /var/swarm/mysql:/var/lib/mysql
+             - ./mysql:/var/lib/mysql
 
         deploy:
             mode: replicated
@@ -28,7 +28,7 @@ services:
                 constraints:
                     - node.role == manager
 
- loadbalancer:
+  loadbalancer:
         networks: 
             - default_stack
         image: registry.nasri.local:5000/loadbalancer:v1      
@@ -38,7 +38,7 @@ services:
             - "80:80"
         volumes:
 
-            - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+            - ./loadbalancer/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
 
         deploy:
             mode: replicated
