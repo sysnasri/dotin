@@ -1,0 +1,71 @@
+version: "3.6"
+networks: 
+    default_stack:
+services:
+  gitlab:
+    networks: 
+      - default_stack
+    image: gitlab/gitlab-ee:latest
+    ports:
+      - "2222:22"
+      - "8080:80"
+      - "8081:443"
+    volumes:
+      - /var/swarm/gitlab/data:/var/opt/gitlab
+      - /var/swarm/gitlab/logs:/var/log/gitlab
+      - /var/swarm/gitlab/config:/etc/gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
+    configs:
+      - source: gitlab
+        target: /omnibus_config.rb
+    secrets:
+      - gitlab_root_password
+      - ssl_certificate_key
+      - ssl_certificate
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    deploy:
+      mode: replicated
+      replicas: 2
+  registry:
+    networks: 
+      - default_stack
+    image: registry:2
+    deploy:
+        mode: replicated
+        replicas: 1
+        placement:
+          constraints:
+              - node.role == manager
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - /var/swarm/register:/var/lib/registry
+  
+    environment:
+        REGISTRY_HTTP_ADDR: 0.0.0.0:5000
+        REGISTRY_HTTP_TLS_CERTIFICATE: /run/secrets/registry.nasri.local.crt
+        REGISTRY_HTTP_TLS_KEY: /run/secrets/registry.nasri.local.key
+        
+    secrets:
+      - registry.nasri.local.key
+      - registry.nasri.local.crt
+
+configs:
+  gitlab:
+    file: /root/gitlab.rb
+secrets:
+
+  gitlab_root_password:
+    file: /root/root_password.txt
+  ssl_certificate_key: 
+    file: /usr/gitlab/cert.d/privkey.pem
+  ssl_certificate: 
+    file: /usr/gitlab/cert.d/gitlab.pem
+  registry.nasri.local.key:
+    file: /usr/docker/cert.d/privkey.pem
+  registry.nasri.local.crt:
+    file: /usr/docker/cert.d/docker.pem
+      

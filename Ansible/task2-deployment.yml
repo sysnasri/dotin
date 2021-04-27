@@ -1,0 +1,133 @@
+---
+- name: Deploy Gitlab and docker registry on swarm cluster 
+  vars_files: ./vars/default.yml
+  hosts: node1
+  tasks: 
+     - name: Ensure directory exists for local self-signed TLS certs for gitlab.
+       file:
+        path: /usr/gitlab/cert.d
+        state: directory
+
+     - name: Generate an OpenSSL private key.
+       openssl_privatekey:
+          path: /usr/gitlab/cert.d/privkey.pem
+
+     - name: Generate an OpenSSL CSR.
+       openssl_csr:
+          path: /usr/gitlab/cert.d/gitlab.csr
+          privatekey_path: /usr/gitlab/cert.d/privkey.pem
+          common_name: "gitlab.nasri.local"
+
+     - name: Generate a Self Signed OpenSSL certificate.
+       openssl_certificate:
+          path: /usr/gitlab/cert.d/gitlab.pem
+          privatekey_path: /usr/gitlab/cert.d/privkey.pem
+          csr_path: /usr/gitlab/cert.d/gitlab.csr
+          provider: selfsigned
+     - name: Ensure directory exists for local self-signed TLS certs for docker registry.
+       file:
+        path: /usr/docker/cert.d
+        state: directory
+
+     - name: Generate an OpenSSL private key.
+       openssl_privatekey:
+          path: /usr/docker/cert.d/privkey.pem
+
+     - name: Generate an OpenSSL CSR.
+       openssl_csr:
+          path: /usr/docker/cert.d/docker.csr
+          privatekey_path: /usr/docker/cert.d/privkey.pem
+          common_name: "registry.nasri.local"
+
+     - name: Generate a Self Signed OpenSSL certificate.
+       openssl_certificate:
+          path: /usr/docker/cert.d/docker.pem
+          privatekey_path: /usr/docker/cert.d/privkey.pem
+          csr_path: /usr/docker/cert.d/docker.csr
+          provider: selfsigned
+
+     - name:  insure system packages are installed
+       package: 
+          name : "{{item}}"
+          state: latest
+       loop: "{{git_lab_packages}}"
+
+     - name:  insure pip moudles are installed
+       pip: 
+          name: "{{item}}"
+          state: latest
+       loop: "{{pip_modules}}"
+- name: copy registry certificates into all docker nodes
+  hosts: all
+  vars_files: ./vars/default.yml
+  tasks : 
+     - name: fetch the certs file to ansible controll machine 
+       fetch: 
+          src: /usr/docker/cert.d/docker.pem
+          dest: /home/ansible/docker.pem
+          flat: yes 
+       when: "{{ inventory_hostname == 'node1' }}"
+
+     - name: Ensure directory exists 
+       file:
+        path: /etc/docker/certs.d/registry.nasri.local:5000
+        state: directory
+     - name: copy certificate to the directory
+       copy:
+          src: /home/ansible/docker.pem
+          dest: /etc/docker/certs.d/registry.nasri.local:5000/ca.crt
+
+     - name: copy certificate to ca-certificates direcotry
+       copy: 
+          src: /home/ansible/docker.pem
+          dest:  /usr/local/share/ca-certificates/registry.nasri.local.crt
+       when : ansible_os_family == "Debian"
+     - name: copy docker compose file to  swarm manager
+       copy:
+         src: ./gitlab/docker-compose.yml
+         dest: /root/docker-compose.yml
+       when: "{{ inventory_hostname == 'node1' }}"
+     - name: copy gitlab root password file to swarm manager
+       copy:
+         src: ./gitlab/root_password.txt
+         dest: /root/root_password.txt
+       when: "{{ inventory_hostname == 'node1' }}"
+     - name: copy gitlab rb  file to  swarm manager
+       copy:
+         src: ./gitlab/gitlab.rb
+         dest: /root/gitlab.rb
+       when: "{{ inventory_hostname == 'node1' }}"       
+
+     - name: Ensure stacks directories exists 
+       file:
+        path: "{{ item }}"
+        state: directory
+       loop: "{{stack_driectories}}" 
+
+     - name: Deploy stack from a compose file
+       docker_stack:
+        state: present
+        name: gitlab_stack
+        compose:
+          - /root/docker-compose.yml
+       when: "{{ inventory_hostname == 'node1' }}"
+
+       notify:
+          - update_trusted_ca_debian
+          - reload_docker_daemon
+          - restart_docker_service
+  handlers:
+     - name: update_trusted_ca_debian
+       shell: /usr/sbin/update-ca-certificates
+       when: ansible_os_family == "Debian"
+
+     - name: restart_docker_service
+       service:
+          name: docker
+          state: restarted
+     - name: reload_docker_daemon
+       systemd:
+        daemon_reload: true   
+
+
+         

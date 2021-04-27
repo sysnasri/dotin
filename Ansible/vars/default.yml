@@ -1,0 +1,18 @@
+git_lab_packages:
+  - python3-pip
+  - virtualenv
+  - python3-setuptools  
+
+pip_modules:
+  - jsondiff
+  - pyyaml
+
+docker_registry_packages:
+  - python3-pipooo
+  - virtualenv
+  - python3-setuptools  
+stack_driectories: 
+      - /var/swarm/gitlab/data
+      - /var/swarm/gitlab/logs
+      - /var/swarm/gitlab/config
+      - /var/swarm/register

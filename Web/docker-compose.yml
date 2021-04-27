@@ -1,0 +1,61 @@
+version: "3.3"
+
+services:
+  db:
+        build:
+             context: './mysql'
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: wp_test
+            MYSQL_USER: wpuser
+            MYSQL_PASSWORD: wpuserpw
+        ports:
+          - "3306:3306"
+        volumes:
+             - ./dbs:/var/lib/mysql
+        container_name: mysql
+  nginx:
+        build:
+            context: './nginx'
+        ports:
+            - "7072:80"
+        volumes:
+            - ./code:/var/www/html
+            - ./nginx/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+        container_name: nginx
+        links:
+            - "db"
+            - "php-fpm"
+  httpd:
+        build:
+            context: './apache'
+        ports:
+            - "7073:80"
+        volumes:
+            - ./code:/var/www/html
+            - ./apache/apache-site.conf:/usr/local/apache2/conf/extra/apache-vhost.conf
+            - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+        container_name: httpd
+        links:
+          - "db"
+          - "php-fpm"
+  haproxy:
+         build:
+            context: './haproxy'
+         ports:
+            - "80:80"
+         volumes:
+            - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+         container_name: haproxy
+         links:
+                    - "nginx"
+                    - "httpd"
+  php-fpm:
+        build:
+            context: './php'
+        ports:
+            - "9000:9000"
+        volumes:
+            - ./code:/var/www/html
+            - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+        container_name: phpfpm

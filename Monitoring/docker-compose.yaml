@@ -1,0 +1,44 @@
+version: '3'
+services:
+    prom: 
+      container_name: prometheus
+      image: prom/prometheus
+      ports:
+        - 9090:9090
+      volumes:
+        - /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+        - /data/prometheus:/data/prometheus 
+     
+      command:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/data/prometheus"
+      user: 1372:1372
+      
+      links:
+       - node_exporter
+       - grafana
+    node_exporter:
+          container_name: node_exporter
+          image: prom/node-exporter
+          volumes:
+             - "/:/hostfs"
+          command: 
+             - "--path.rootfs=/hostfs"   
+          ports:
+            - 9100:9100
+          user: 1372:1372
+          
+    grafana:
+       container_name: grafana
+       image: grafana/grafana
+       ports:
+        - 3000:3000
+        
+      
+
+             
+
+            
+
+
+
