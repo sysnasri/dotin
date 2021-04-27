@@ -13,9 +13,9 @@ To collect logs via filebeat, please install this debian package.
 
 Add the following block of code into /etc/filebeat/filebeat.yml after filebeat.inputs directive. 
 
-  - type: docker
-    containers.ids: '*'
-    processors:
-      - add_docker_metadata: ~
+    - type: docker
+      containers.ids: '*'
+      processors:
+          - add_docker_metadata: ~
 
 You can access to Kibana interface through http://localhost:5601      
