@@ -16,9 +16,4 @@ tast2_driectories:
       - /var/swarm/gitlab/logs
       - /var/swarm/gitlab/config
       - /var/swarm/register
-task3_driectories:
-    - /var/swarm/mysql
-    - /var/swarm/loadbalancer
-    - /var/swarm/code
-    - /var/swarm/nginx/
-    - /var/swarm/php/w   
+

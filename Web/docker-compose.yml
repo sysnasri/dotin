@@ -19,7 +19,7 @@ services:
         ports:
           - "3306:3306"
         volumes:
-             - ./mysql:/var/lib/mysql
+             - /var/swarm/dotin/Web/mysql:/var/lib/mysql
 
         deploy:
             mode: replicated
@@ -38,7 +38,7 @@ services:
             - "80:80"
         volumes:
 
-            - ./loadbalancer/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+            - /var/swarm/dotin/Web/loadbalancer/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
 
         deploy:
             mode: replicated
@@ -53,8 +53,8 @@ services:
         ports:
             - "8888:80"
         volumes:
-            - ./code:/var/www/html
-            - ./nginx/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+            - /var/swarm/dotin/Web/code:/var/www/html
+            - /var/swarm/dotin/Web/nginx/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
         deploy:
             mode: replicated
             replicas: 3
@@ -69,8 +69,8 @@ services:
         ports:
             - "9000:9000"
         volumes:
-            - ./code:/var/www/html
-            - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+            - /var/swarm/dotin/Web/code:/var/www/html
+            - /var/swarm/dotin/Web/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
         deploy:
             mode: replicated
             replicas: 3
