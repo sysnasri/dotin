@@ -3,8 +3,10 @@ networks:
     default_stack:
 services:
   db:   
+        
         networks: 
             - default_stack
+        image: registry.nasri.local:5000/mysql:v1    
         build:
              context: './mysql'
         environment:
@@ -18,7 +20,7 @@ services:
           - "3306:3306"
         volumes:
              - /var/swarm/mysql:/var/lib/mysql
-        container_name: mysql
+
         deploy:
             mode: replicated
             replicas: 1
@@ -29,14 +31,15 @@ services:
  loadbalancer:
         networks: 
             - default_stack
+        image: registry.nasri.local:5000/loadbalancer:v1      
         build:
             context: './loadbalancer'
         ports:
             - "80:80"
         volumes:
-            - 
+
             - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
-        container_name: loadbalancer
+
         deploy:
             mode: replicated
             replicas: 3
@@ -44,6 +47,7 @@ services:
   nginx:
         networks: 
             - default_stack
+        image: registry.nasri.local:5000/nginx:v1                   
         build:
             context: './nginx'
         ports:
@@ -51,7 +55,6 @@ services:
         volumes:
             - ./code:/var/www/html
             - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
-        container_name: nginx
         deploy:
             mode: replicated
             replicas: 3
@@ -60,6 +63,7 @@ services:
   php-fpm:
         networks: 
           - default_stack
+        image: registry.nasri.local:5000/php-fpm:v1    
         build:
             context: './php'
         ports:
