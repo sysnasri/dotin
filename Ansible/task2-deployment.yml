@@ -3,6 +3,7 @@
   vars_files: ./vars/default.yml
   hosts: node1
   tasks: 
+
      - name: Ensure directory exists for local self-signed TLS certs for gitlab.
        file:
         path: /usr/gitlab/cert.d
@@ -24,6 +25,7 @@
           privatekey_path: /usr/gitlab/cert.d/privkey.pem
           csr_path: /usr/gitlab/cert.d/gitlab.csr
           provider: selfsigned
+
      - name: Ensure directory exists for local self-signed TLS certs for docker registry.
        file:
         path: /usr/docker/cert.d
@@ -57,10 +59,20 @@
           name: "{{item}}"
           state: latest
        loop: "{{pip_modules}}"
+
 - name: copy registry certificates into all docker nodes
   hosts: all
   vars_files: ./vars/default.yml
   tasks : 
+
+     - name: set domains in /etc/hosts
+       blockinfile:
+        path: /etc/hosts
+        insertafter: EOF 
+        block: |
+          10.10.10.100 registry.nasri.local
+          10.10.10.100 gitlab.nasri.local
+  
      - name: fetch the certs file to ansible controll machine 
        fetch: 
           src: /usr/docker/cert.d/docker.pem
@@ -72,6 +84,7 @@
        file:
         path: /etc/docker/certs.d/registry.nasri.local:5000
         state: directory
+
      - name: copy certificate to the directory
        copy:
           src: /home/ansible/docker.pem
@@ -82,16 +95,19 @@
           src: /home/ansible/docker.pem
           dest:  /usr/local/share/ca-certificates/registry.nasri.local.crt
        when : ansible_os_family == "Debian"
+
      - name: copy docker compose file to  swarm manager
        copy:
          src: ./gitlab/docker-compose.yml
          dest: /root/docker-compose.yml
        when: "{{ inventory_hostname == 'node1' }}"
+
      - name: copy gitlab root password file to swarm manager
        copy:
          src: ./gitlab/root_password.txt
          dest: /root/root_password.txt
        when: "{{ inventory_hostname == 'node1' }}"
+
      - name: copy gitlab rb  file to  swarm manager
        copy:
          src: ./gitlab/gitlab.rb
@@ -102,7 +118,7 @@
        file:
         path: "{{ item }}"
         state: directory
-       loop: "{{stack_driectories}}" 
+       loop: "{{tast2_driectories}}" 
 
      - name: Deploy stack from a compose file
        docker_stack:

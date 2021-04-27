@@ -1,0 +1,25 @@
+---
+- name: Deploy web and nginx  on swarm cluster 
+  vars_files: ./vars/default.yml
+  hosts: all
+  tasks: 
+     - name: Ensure stacks directories exists 
+       file:
+        path: "{{ item }}"
+        state: directory
+       loop: "{{task3_driectories}}" 
+     - name : pull source codes from git repository 
+       git: 
+          repo: 'https://github.com/sysnasri/dotin'
+          dest: /root/dotin
+          update: yes
+       when: "{{ inventory_hostname == 'node1' }}" 
+
+     - name: Deploy stack from a compose file
+       docker_stack:
+        state: present
+        name: web_stack
+        compose:
+          - /root/dotin/Web/docker-compose.yml
+
+

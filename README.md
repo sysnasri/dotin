@@ -28,32 +28,29 @@ The assignment consists of 5 tasks which are listed here.
 
 # Lets get started 
 
-    There are several folders in this repository. Please reffer to each folder for more information.
+There are several folders in this repository. Please reffer to each folder for more information.
 
 # Ansible
 
-    I could have Installed ansible via vagrant which is also added to the project but the installation procedure is done via the following ansible role.
+I could have Installed ansible via vagrant which is also added to the project but the installation procedure is done via the following ansible role.
 
-        ansible-galaxy install sysnasri.docker
+        ansible-galaxy install atosatto.docker-swarm
 
-            Please read the README file here to override the default variables
 
-                ansible-galaxy install atosatto.docker-swarm
-
-    for those who want to install via vagrant please reffer to vagrant folder.
+for those who want to install via vagrant please reffer to vagrant folder.
 
 # Gitlab
 
-    Personally I would rather install applications via JUJU charms in combination with MAAS than to write or use a playbook but this one is for demonstration purpose.
+Personally I would rather install applications via JUJU charms in combination with MAAS than to write or use a playbook but this one is for demonstration purpose.
 
             https://maas.io/
             https://jaas.ai/ 
 
-    You can find the same folder as task name as well. 
+You can find the same folder as task name as well. 
 
 # Sample Project:
 
-    A folder called `web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two apache webservers as backend.
+A folder called `web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two apache webservers as backend.
 
 # ELK Stack:
 

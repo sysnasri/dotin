@@ -1,56 +1,65 @@
 version: "3.3"
-
+networks: 
+    default_stack:
 services:
-  db:
+  db:   
+        networks: 
+            - default_stack
         build:
              context: './mysql'
         environment:
-            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_ROOT_PASSWORD: /run/secrets/mysql_root_password
             MYSQL_DATABASE: wp_test
             MYSQL_USER: wpuser
             MYSQL_PASSWORD: wpuserpw
+        secrets: 
+            - mysql_root_password    
         ports:
           - "3306:3306"
         volumes:
-             - ./dbs:/var/lib/mysql
+             - /var/swarm/mysql:/var/lib/mysql
         container_name: mysql
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints:
+                    - node.role == manager
+
+ loadbalancer:
+        networks: 
+            - default_stack
+        build:
+            context: './loadbalancer'
+        ports:
+            - "80:80"
+        volumes:
+            - 
+            - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+        container_name: loadbalancer
+        deploy:
+            mode: replicated
+            replicas: 3
+                
   nginx:
+        networks: 
+            - default_stack
         build:
             context: './nginx'
         ports:
-            - "7072:80"
+            - "8888:80"
         volumes:
             - ./code:/var/www/html
-            - ./nginx/nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
+            - ./nginx-site.conf:/etc/nginx/conf.d/nginx-site.conf
         container_name: nginx
-        links:
-            - "db"
-            - "php-fpm"
-  httpd:
-        build:
-            context: './apache'
-        ports:
-            - "7073:80"
-        volumes:
-            - ./code:/var/www/html
-            - ./apache/apache-site.conf:/usr/local/apache2/conf/extra/apache-vhost.conf
-            - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-        container_name: httpd
-        links:
-          - "db"
-          - "php-fpm"
-  haproxy:
-         build:
-            context: './haproxy'
-         ports:
-            - "80:80"
-         volumes:
-            - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-         container_name: haproxy
-         links:
-                    - "nginx"
-                    - "httpd"
+        deploy:
+            mode: replicated
+            replicas: 3
+
+
   php-fpm:
+        networks: 
+          - default_stack
         build:
             context: './php'
         ports:
@@ -59,3 +68,9 @@ services:
             - ./code:/var/www/html
             - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
         container_name: phpfpm
+        deploy:
+            mode: replicated
+            replicas: 3
+secrets: 
+    mysql_root_password:
+        file: /root/mysql_root_password
