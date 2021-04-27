@@ -1,7 +1,10 @@
 version: '3'
+networks: 
+  default_stack:
 services:
     prom: 
-      container_name: prometheus
+      networks: 
+        - default_stack
       image: prom/prometheus
       ports:
         - 9090:9090
@@ -12,27 +15,31 @@ services:
       command:
           - "--config.file=/etc/prometheus/prometheus.yml"
           - "--storage.tsdb.path=/data/prometheus"
-      user: 1372:1372
-      
-      links:
-       - node_exporter
-       - grafana
+      deploy:    
+        mode: replicated
+        replicas: 3
+    
     node_exporter:
-          container_name: node_exporter
+          networks: 
+            - default_stack
           image: prom/node-exporter
-          volumes:
-             - "/:/hostfs"
-          command: 
-             - "--path.rootfs=/hostfs"   
           ports:
             - 9100:9100
-          user: 1372:1372
+          deploy:    
+            mode: global
+            
           
     grafana:
-       container_name: grafana
-       image: grafana/grafana
-       ports:
-        - 3000:3000
+      image: grafana/grafana
+      user: "1000"
+      environment:
+        - GF_SECURITY_ADMIN_PASSWORD=secure_pass
+      volumes:
+        - ./grafana_db:/var/lib/grafana
+      depends_on:
+        - prometheus
+      ports:
+        - '3000:3000'
         
       
 

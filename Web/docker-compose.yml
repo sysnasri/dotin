@@ -19,7 +19,7 @@ services:
         ports:
           - "3306:3306"
         volumes:
-             - /var/swarm/dotin/Web/mysql:/var/lib/mysql
+             - /var/swarm/dotin/Web/mysql/dbs:/var/lib/mysql
 
         deploy:
             mode: replicated

@@ -1,21 +1,30 @@
-version: '3'
-
+version: "3.6"
+networks: 
+  default_stack:
 services:
   elasticsearch:
-    image: elasticsearch:7.9.3
+    networks: 
+      - default_stack
+    image: registry.nasri.local:5000/elasticsearch
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    ports: 
+      - "9200:9200"
   kibana:
-    image: kibana:7.9.3
+    networks: 
+      - default_stack
+    image: registry.nasri.local:5000/kibana
     depends_on:
       - elasticsearch
     ports:
       - "5601:5601"
   logstash:
-    image: logstash:7.9.3
+    networks: 
+      - default_stack
+    image: registry.nasri.local:5000/logstash
     ports:
       - "12201:12201/udp"
     depends_on:
