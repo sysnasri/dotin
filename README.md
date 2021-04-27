@@ -49,11 +49,15 @@ Personally I would rather install applications via JUJU charms in combination wi
 
 # Sample Project:
 
-A folder called `web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two nginx webservers as backend.
+A folder called `Web` is presented here. It consists of a docker compose which is going to build neccessory images for the wordpress deployment. it consists of nginx as a load balancer , php-fpm , mariadb and two nginx webservers as backend.
 
 # ELK Stack:
 
-    Elastic , logstash and kibana are deployed as docker container
+Elastic , logstash and kibana are deployed as docker container
+
+# Prometheus & Grafana:
+
+If you want to deploy this stack please refer to `Montitoring` folder.
 
 Good Luck. 
 
